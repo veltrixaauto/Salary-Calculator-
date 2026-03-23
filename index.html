@@ -5,15 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Salary Calculator</title>
 <style>
-body { font-family: Arial; background:#f4f4f4; padding:20px; }
+/* --- CSS Styles --- */
+body { font-family: Arial, sans-serif; background:#f4f4f4; padding:20px; }
 .container { max-width:800px; margin:auto; background:#fff; padding:20px; border-radius:10px; box-shadow:0 0 15px rgba(0,0,0,0.1);}
-h2 { text-align:center; color:#0A2647; }
+h2 { text-align:center; color:#0A2647; margin-bottom:20px;}
 .form-group { margin-bottom:15px; }
 label { display:block; margin-bottom:5px; font-weight:bold; }
-input[type=number], input[type=date] { width:100%; padding:8px; font-size:14px; border-radius:4px; border:1px solid #ccc; }
+input[type=number], input[type=date] { width:100%; padding:8px; font-size:14px; border-radius:4px; border:1px solid #ccc; box-sizing:border-box;}
 .result { margin-top:20px; background:#e2e2e2; padding:15px; border-radius:5px; }
-.result p { margin:5px 0; }
+.result h3 { margin-top:0; color:#0A2647;}
 .checkbox-group { margin-bottom:15px; font-weight:bold; }
+p.footer { text-align:center; margin-top:20px; font-weight:bold; }
 </style>
 </head>
 <body>
@@ -113,14 +115,14 @@ input[type=number], input[type=date] { width:100%; padding:8px; font-size:14px; 
 <div id="breakdown"></div>
 </div>
 
-<p style="text-align:center; margin-top:20px; font-weight:bold;">Developed by Muhammad Hasnain</p>
+<p class="footer">Developed by Muhammad Hasnain</p>
 </div>
 
 <script>
+/* --- JavaScript --- */
 const fields = ['basicSalary','startDate','endDate','totalDays','absentDays','extraDays','lunchDeduction','transportDeduction','otHours','otMinutes','hardshipHours','hardshipRate','extraHardshipRate'];
 fields.forEach(id => document.getElementById(id).addEventListener('input', calculateSalary));
 
-// Show/hide input groups based on checkbox
 document.getElementById('useManualDays').addEventListener('change', toggleInputGroups);
 document.getElementById('useDateRange').addEventListener('change', toggleInputGroups);
 
@@ -137,7 +139,6 @@ const basic = parseFloat(document.getElementById('basicSalary').value) || 0;
 const perDay = basic / 30;
 const halfDay = perDay / 2;
 const perHour = perDay / 8;
-
 document.getElementById('perDaySalary').value = perDay.toFixed(2);
 document.getElementById('halfDaySalary').value = halfDay.toFixed(2);
 document.getElementById('perHourSalary').value = perHour.toFixed(2);
@@ -209,4 +210,4 @@ toggleInputGroups();
 </script>
 
 </body>
-</html>
+    </html>
