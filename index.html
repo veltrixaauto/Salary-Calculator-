@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Salary Calculator</title>
+<style>
+body { font-family: Arial; background:#f4f4f4; padding:20px; }
+.container { max-width:800px; margin:auto; background:#fff; padding:20px; border-radius:10px; box-shadow:0 0 15px rgba(0,0,0,0.1);}
+h2 { text-align:center; color:#0A2647; }
+.form-group { margin-bottom:15px; }
+label { display:block; margin-bottom:5px; font-weight:bold; }
+input[type=number], input[type=date] { width:100%; padding:8px; font-size:14px; border-radius:4px; border:1px solid #ccc; }
+.result { margin-top:20px; background:#e2e2e2; padding:15px; border-radius:5px; }
+.result p { margin:5px 0; }
+.checkbox-group { margin-bottom:15px; font-weight:bold; }
+</style>
+</head>
+<body>
+
+<div class="container">
+<h2>Salary Calculator</h2>
+
+<div class="form-group">
+<label>Basic Salary</label>
+<input type="number" id="basicSalary" placeholder="Enter Basic Salary">
+</div>
+
+<div class="form-group">
+<label>Per Day Salary</label>
+<input type="text" id="perDaySalary" readonly>
+</div>
+
+<div class="form-group">
+<label>Half Day Salary</label>
+<input type="text" id="halfDaySalary" readonly>
+</div>
+
+<div class="form-group">
+<label>Per Hour Salary</label>
+<input type="text" id="perHourSalary" readonly>
+</div>
+
+<div class="checkbox-group">
+<input type="checkbox" id="useManualDays"> Use Manual Total Days<br>
+<input type="checkbox" id="useDateRange"> Use Date Range
+</div>
+
+<div class="form-group" id="manualDaysGroup">
+<label>Total Days (Manual)</label>
+<input type="number" id="totalDays" step="0.5">
+</div>
+
+<div class="form-group" id="dateRangeGroup">
+<label>Start Date</label>
+<input type="date" id="startDate">
+<label>End Date</label>
+<input type="date" id="endDate">
+</div>
+
+<div class="form-group">
+<label>Absent Days</label>
+<input type="number" id="absentDays" step="0.5">
+</div>
+
+<div class="form-group">
+<label>Present Days</label>
+<input type="number" id="presentDays" readonly>
+</div>
+
+<div class="form-group">
+<label>Extra Days</label>
+<input type="number" id="extraDays" step="0.5">
+</div>
+
+<div class="form-group">
+<label>Lunch Deduction</label>
+<input type="number" id="lunchDeduction">
+</div>
+
+<div class="form-group">
+<label>Transport Deduction</label>
+<input type="number" id="transportDeduction">
+</div>
+
+<div class="form-group">
+<label>Overtime Hours</label>
+<input type="number" id="otHours">
+</div>
+
+<div class="form-group">
+<label>Overtime Minutes</label>
+<input type="number" id="otMinutes">
+</div>
+
+<div class="form-group">
+<label>Hardship Allowance Hours</label>
+<input type="number" id="hardshipHours">
+</div>
+
+<div class="form-group">
+<label>Hardship Rate Per Hour</label>
+<input type="number" id="hardshipRate">
+</div>
+
+<div class="form-group">
+<label>Hardship for Extra Days (per day)</label>
+<input type="number" id="extraHardshipRate">
+</div>
+
+<div class="result" id="result">
+<h3>Salary Breakdown:</h3>
+<div id="breakdown"></div>
+</div>
+
+<p style="text-align:center; margin-top:20px; font-weight:bold;">Developed by Muhammad Hasnain</p>
+</div>
+
+<script>
+const fields = ['basicSalary','startDate','endDate','totalDays','absentDays','extraDays','lunchDeduction','transportDeduction','otHours','otMinutes','hardshipHours','hardshipRate','extraHardshipRate'];
+fields.forEach(id => document.getElementById(id).addEventListener('input', calculateSalary));
+
+// Show/hide input groups based on checkbox
+document.getElementById('useManualDays').addEventListener('change', toggleInputGroups);
+document.getElementById('useDateRange').addEventListener('change', toggleInputGroups);
+
+function toggleInputGroups() {
+    const manual = document.getElementById('useManualDays').checked;
+    const dateRange = document.getElementById('useDateRange').checked;
+    document.getElementById('manualDaysGroup').style.display = manual ? 'block' : 'none';
+    document.getElementById('dateRangeGroup').style.display = dateRange ? 'block' : 'none';
+    calculateSalary();
+}
+
+function calculateSalary() {
+const basic = parseFloat(document.getElementById('basicSalary').value) || 0;
+const perDay = basic / 30;
+const halfDay = perDay / 2;
+const perHour = perDay / 8;
+
+document.getElementById('perDaySalary').value = perDay.toFixed(2);
+document.getElementById('halfDaySalary').value = halfDay.toFixed(2);
+document.getElementById('perHourSalary').value = perHour.toFixed(2);
+
+// Total Days
+let totalDays = 30; // default
+if(document.getElementById('useDateRange').checked){
+    let start = new Date(document.getElementById('startDate').value);
+    let end = new Date(document.getElementById('endDate').value);
+    if(start != 'Invalid Date' && end != 'Invalid Date' && end >= start){
+        totalDays = Math.round((end - start)/(1000*60*60*24))+1;
+    }
+}
+if(document.getElementById('useManualDays').checked){
+    const manualTotalDays = parseFloat(document.getElementById('totalDays').value);
+    if(!isNaN(manualTotalDays) && manualTotalDays > 0) totalDays = manualTotalDays;
+}
+document.getElementById('totalDays').value = totalDays;
+
+// Present & Absent
+const absentDays = parseFloat(document.getElementById('absentDays').value) || 0;
+const presentDays = totalDays - absentDays;
+document.getElementById('presentDays').value = presentDays;
+
+// Extra Days
+const extraDays = parseFloat(document.getElementById('extraDays').value) || 0;
+
+// Deductions
+const lunchDeduction = parseFloat(document.getElementById('lunchDeduction').value) || 0;
+const transportDeduction = parseFloat(document.getElementById('transportDeduction').value) || 0;
+
+// Overtime calculation (auto per hour from basic)
+const otHours = parseFloat(document.getElementById('otHours').value) || 0;
+const otMinutes = parseFloat(document.getElementById('otMinutes').value) || 0;
+const totalOT = (otHours + otMinutes/60) * perHour;
+
+// Hardship allowance
+const hardshipHours = parseFloat(document.getElementById('hardshipHours').value) || 0;
+const hardshipRate = parseFloat(document.getElementById('hardshipRate').value) || 0;
+const totalHardship = hardshipHours * hardshipRate;
+
+// Extra day earnings (auto per-day rate)
+const extraDayHardshipRate = parseFloat(document.getElementById('extraHardshipRate').value) || 0;
+const extraDayEarnings = extraDays * (perDay + extraDayHardshipRate);
+
+// Salary calculation
+const salaryFromDays = perDay * presentDays;
+const totalSalary = salaryFromDays - lunchDeduction - transportDeduction + totalOT + totalHardship + extraDayEarnings;
+
+// Breakdown
+const breakdown = `
+Basic Salary: ${basic.toFixed(2)} <br>
+Total Days: ${totalDays} <br>
+Present Days: ${presentDays} <br>
+Absent Days: ${absentDays} <br>
+Salary for Present Days: ${salaryFromDays.toFixed(2)} <br>
+Extra Days Earnings: ${extraDayEarnings.toFixed(2)} <br>
+Lunch Deduction: -${lunchDeduction.toFixed(2)} <br>
+Transport Deduction: -${transportDeduction.toFixed(2)} <br>
+Overtime Earnings: +${totalOT.toFixed(2)} <br>
+Hardship Allowance: +${totalHardship.toFixed(2)} <br>
+<strong>Total Salary: ${totalSalary.toFixed(2)}</strong>
+`;
+document.getElementById('breakdown').innerHTML = breakdown;
+}
+
+// Initialize view
+toggleInputGroups();
+</script>
+
+</body>
+</html>
