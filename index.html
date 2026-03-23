@@ -5,17 +5,24 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Salary Calculator</title>
 <style>
-/* --- CSS Styles --- */
-body { font-family: Arial, sans-serif; background:#f4f4f4; padding:20px; }
-.container { max-width:800px; margin:auto; background:#fff; padding:20px; border-radius:10px; box-shadow:0 0 15px rgba(0,0,0,0.1);}
-h2 { text-align:center; color:#0A2647; margin-bottom:20px;}
+/* --- Color Palette CSS --- */
+body { font-family: Arial, sans-serif; background:#F4F4F4; padding:20px; color:#333333; }
+.container { max-width:800px; margin:auto; background:#FFFFFF; padding:20px; border-radius:10px; box-shadow:0 0 15px rgba(0,0,0,0.1);}
+h2 { text-align:center; color:#0A2647; margin-bottom:20px; }
 .form-group { margin-bottom:15px; }
 label { display:block; margin-bottom:5px; font-weight:bold; }
 input[type=number], input[type=date] { width:100%; padding:8px; font-size:14px; border-radius:4px; border:1px solid #ccc; box-sizing:border-box;}
-.result { margin-top:20px; background:#e2e2e2; padding:15px; border-radius:5px; }
-.result h3 { margin-top:0; color:#0A2647;}
 .checkbox-group { margin-bottom:15px; font-weight:bold; }
-p.footer { text-align:center; margin-top:20px; font-weight:bold; }
+.result { margin-top:20px; background:#e2e2e2; padding:15px; border-radius:5px; }
+.result h3 { margin-top:0; color:#0A2647; }
+
+/* Breakdown colors */
+.earning { color:#28A745; font-weight:bold; }
+.hardship { color:#71C285; font-weight:bold; }
+.deduction { color:#DC3545; font-weight:bold; }
+.deduction-light { color:#F28B82; font-weight:bold; }
+
+p.footer { text-align:center; margin-top:20px; font-weight:bold; color:#0A2647; }
 </style>
 </head>
 <body>
@@ -119,7 +126,6 @@ p.footer { text-align:center; margin-top:20px; font-weight:bold; }
 </div>
 
 <script>
-/* --- JavaScript --- */
 const fields = ['basicSalary','startDate','endDate','totalDays','absentDays','extraDays','lunchDeduction','transportDeduction','otHours','otMinutes','hardshipHours','hardshipRate','extraHardshipRate'];
 fields.forEach(id => document.getElementById(id).addEventListener('input', calculateSalary));
 
@@ -144,7 +150,7 @@ document.getElementById('halfDaySalary').value = halfDay.toFixed(2);
 document.getElementById('perHourSalary').value = perHour.toFixed(2);
 
 // Total Days
-let totalDays = 30; // default
+let totalDays = 30;
 if(document.getElementById('useDateRange').checked){
     let start = new Date(document.getElementById('startDate').value);
     let end = new Date(document.getElementById('endDate').value);
@@ -170,7 +176,7 @@ const extraDays = parseFloat(document.getElementById('extraDays').value) || 0;
 const lunchDeduction = parseFloat(document.getElementById('lunchDeduction').value) || 0;
 const transportDeduction = parseFloat(document.getElementById('transportDeduction').value) || 0;
 
-// Overtime calculation (auto per hour from basic)
+// Overtime
 const otHours = parseFloat(document.getElementById('otHours').value) || 0;
 const otMinutes = parseFloat(document.getElementById('otMinutes').value) || 0;
 const totalOT = (otHours + otMinutes/60) * perHour;
@@ -180,7 +186,7 @@ const hardshipHours = parseFloat(document.getElementById('hardshipHours').value)
 const hardshipRate = parseFloat(document.getElementById('hardshipRate').value) || 0;
 const totalHardship = hardshipHours * hardshipRate;
 
-// Extra day earnings (auto per-day rate)
+// Extra day earnings
 const extraDayHardshipRate = parseFloat(document.getElementById('extraHardshipRate').value) || 0;
 const extraDayEarnings = extraDays * (perDay + extraDayHardshipRate);
 
@@ -188,19 +194,19 @@ const extraDayEarnings = extraDays * (perDay + extraDayHardshipRate);
 const salaryFromDays = perDay * presentDays;
 const totalSalary = salaryFromDays - lunchDeduction - transportDeduction + totalOT + totalHardship + extraDayEarnings;
 
-// Breakdown
+// Breakdown with colors
 const breakdown = `
 Basic Salary: ${basic.toFixed(2)} <br>
 Total Days: ${totalDays} <br>
 Present Days: ${presentDays} <br>
 Absent Days: ${absentDays} <br>
-Salary for Present Days: ${salaryFromDays.toFixed(2)} <br>
-Extra Days Earnings: ${extraDayEarnings.toFixed(2)} <br>
-Lunch Deduction: -${lunchDeduction.toFixed(2)} <br>
-Transport Deduction: -${transportDeduction.toFixed(2)} <br>
-Overtime Earnings: +${totalOT.toFixed(2)} <br>
-Hardship Allowance: +${totalHardship.toFixed(2)} <br>
-<strong>Total Salary: ${totalSalary.toFixed(2)}</strong>
+Salary for Present Days: <span class="earning">${salaryFromDays.toFixed(2)}</span> <br>
+Extra Days Earnings: <span class="earning">${extraDayEarnings.toFixed(2)}</span> <br>
+Lunch Deduction: <span class="deduction-light">-${lunchDeduction.toFixed(2)}</span> <br>
+Transport Deduction: <span class="deduction-light">-${transportDeduction.toFixed(2)}</span> <br>
+Overtime Earnings: <span class="earning">${totalOT.toFixed(2)}</span> <br>
+Hardship Allowance: <span class="hardship">${totalHardship.toFixed(2)}</span> <br>
+<strong>Total Salary: <span class="earning">${totalSalary.toFixed(2)}</span></strong>
 `;
 document.getElementById('breakdown').innerHTML = breakdown;
 }
